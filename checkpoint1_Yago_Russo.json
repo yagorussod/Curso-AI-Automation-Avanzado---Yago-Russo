@@ -1,1 +1,218 @@
 
+{
+  "name": "PRE ENTREGA 1",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f6296958-36ee-4736-8eb6-3afd4c6af747",
+      "name": "When chat message received",
+      "webhookId": "8e0e028b-72f3-494f-bf2f-aeae26311d9d"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres Dixon, un agente inmobiliario virtual de DIC Propiedades. Tu especialidad es la atención al cliente de excelencia: eres sumamente educado, servicial, profesional y empático. \n\nRecibes la consulta de un cliente derivado desde el chat de ventas de nuestra sección de propiedades en venta (https://www.dicpropiedades.com.ar/venta).\n\nINSTRUCCIONES DE ANÁLISIS Y RESPUESTA:\n1. Analiza el mensaje del cliente disponible en: {{ $json.chatInput }}\n2. Genera una respuesta precisa y directa a la consulta realizada.\n\nREGLAS DE ESTILO Y REDACCIÓN:\n- Tono: Profesional, cordial y educado. Evita el lenguaje informal (slang o excesiva familiaridad) y huye de tecnicismos innecesarios o jerga inmobiliaria compleja.\n- Naturalidad: Redacta con un estilo fluido e impecable, imitando la calidez y estructura de una conversación humana real.\n- Formato de texto: Escribe únicamente en párrafos continuos. Queda estrictamente PROHIBIDO usar listas de viñetas o puntos, A MENOS que estés mencionando explícitamente características de inmuebles, servicios específicos o un listado de propiedades.\n\nLÍMITES Y RESTRICCIONES (GUARDRAILS):\n- Enfoque exclusivo: Responde únicamente sobre la consulta del cliente y temas directamente vinculados a la compra/venta inmobiliaria de DIC Propiedades. No hagas referencia a ningún tema ajeno.\n- Sin inventar información: Si el usuario pregunta por un inmueble específico y no tienes los datos en el contexto, invítalo cordialmente a coordinar una llamada o consultar la web oficial.\n\nGenera solo la respuesta final que se enviará al cliente.",
+        "options": {
+          "maxIterations": 10
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "472ee4de-f0a1-410d-b3f8-8e49b3a954b8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "=openai/gpt-oss-120b",
+          "mode": "id"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        192
+      ],
+      "id": "0def6880-2dd9-41eb-992e-f6fd0e5b5ee5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ZsX1IuMq7vTOu7G2",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "Cuando el usuario final solicita información sobre el catalogo de propiedades, debes enviar propiedades que coincidan con su busqueda dentro de la pagina https://www.dicpropiedades.com.ar/venta",
+        "options": {
+          "maxIterations": 10
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        384,
+        208
+      ],
+      "id": "97ac36fc-856e-4228-b1a7-a612f8219751",
+      "name": "AI Agent Tool"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "=openai/gpt-oss-120b",
+          "mode": "id"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        368
+      ],
+      "id": "3988eda7-0ad3-4134-9da2-c66a0a0b3176",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ZsX1IuMq7vTOu7G2",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "={{ $json.userslack }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        592,
+        0
+      ],
+      "id": "d9fa917a-582d-4102-989f-a27f68f29142",
+      "name": "Send a message",
+      "webhookId": "8ffdcced-7ce6-4618-9cf6-2bbad4588f5b"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        208
+      ],
+      "id": "ae3b0ec6-2006-4008-9fba-7ced81a467b1",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ba2cb3c5-f4cc-447e-be4d-29747a60f9f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "54b8024de503c45ec2e38e64e2d0ba00b6348bb4eb2d73e4025bb63478dfc441"
+  },
+  "nodeGroups": [],
+  "id": "IeuZGXVjW7vhbcVD",
+  "tags": []
+}
